@@ -160,7 +160,12 @@ public:
 
 
 		// load timestamps if possible.
-		loadTimestamps();
+		// loadTimestamps();
+
+		size_t idx = path.find_last_of('/');
+    	std::string fn_ts = path.substr(0, idx+1) + "data.csv";
+		loadTimestampsEuRoC(fn_ts);
+		
 		printf("ImageFolderReader: got %d files in %s!\n", (int)files.size(), path.c_str());
 
 	}
@@ -355,7 +360,38 @@ private:
 		printf("got %d images and %d timestamps and %d exposures.!\n", (int)getNumImages(), (int)timestamps.size(), (int)exposures.size());
 	}
 
+	inline void loadTimestampsEuRoC(std::string fn_ts)
+	{
+		std::ifstream file(fn_ts);
 
+		if (!file.is_open()) {
+			std::cerr << "Failed to open file: " << fn_ts << std::endl;
+			return;
+		}
+
+		std::string line;
+		while (std::getline(file, line)) 
+		{
+			std::stringstream ss(line);
+			std::string value;
+
+			if (std::getline(ss, value, ',')) 
+			{
+				try 
+				{
+					double num = std::stod(value);
+					num *= 1e-9;
+					timestamps.push_back(num);
+				} 
+				catch (const std::exception& e) 
+				{
+					std::cerr << "Error converting value to double: " << value << std::endl;
+				}
+			}
+		}
+
+		file.close();
+	}
 
 
 	std::vector<ImageAndExposure*> preloadedImages;
