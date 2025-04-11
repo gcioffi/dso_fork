@@ -531,8 +531,8 @@ int main( int argc, char** argv )
         gettimeofday(&tv_end, NULL);
 
 
-        fullSystem->printResult("result.txt");
-
+		std::string outFile = "/home/giovanni/DSO_docker/DSO/stamped_traj_estimated.txt";
+        fullSystem->printResult(outFile);
 
         int numFramesProcessed = abs(idsToPlay[0]-idsToPlay.back());
         double numSecondsProcessed = fabs(reader->getTimestamp(idsToPlay[0])-reader->getTimestamp(idsToPlay.back()));
