@@ -162,9 +162,17 @@ public:
 		// load timestamps if possible.
 		// loadTimestamps();
 
+		// EuRoC
+		// size_t idx = path.find_last_of('/');
+    	// std::string fn_ts = path.substr(0, idx+1) + "data.csv";
+		// loadTimestampsEuRoC(fn_ts);
+
+		// UZH-FPV
 		size_t idx = path.find_last_of('/');
-    	std::string fn_ts = path.substr(0, idx+1) + "data.csv";
-		loadTimestampsEuRoC(fn_ts);
+    	std::string fn_ts = path.substr(0, idx);
+		idx = fn_ts.find_last_of('/');
+    	fn_ts = path.substr(0, idx+1) + "images.txt";
+		loadTimestampsUZHFPV(fn_ts);
 		
 		printf("ImageFolderReader: got %d files in %s!\n", (int)files.size(), path.c_str());
 
@@ -393,6 +401,40 @@ private:
 		file.close();
 	}
 
+	inline void loadTimestampsUZHFPV(std::string fn_ts)
+	{
+		std::ifstream file(fn_ts);
+
+		if (!file.is_open()) {
+			std::cerr << "Failed to open file: " << fn_ts << std::endl;
+			return;
+		}
+
+		std::string line;
+		while (std::getline(file, line)) 
+		{
+			// Skip comments or empty lines
+			if (line.empty() || line[0] == '#') {
+				continue;
+			}
+
+			std::istringstream ss(line);
+			int id;
+			double ts;
+			std::string imageName;
+
+			if (ss >> id >> ts >> imageName) 
+			{
+				timestamps.push_back(ts);
+			} 
+			else 
+			{
+				std::cerr << "Failed to parse line: " << line << std::endl;
+			}
+		}
+
+		file.close();
+	}
 
 	std::vector<ImageAndExposure*> preloadedImages;
 	std::vector<std::string> files;
